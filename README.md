@@ -1,2 +1,2 @@
-# FireWalk
+# Firewalk
 An HTTP networking tester.
