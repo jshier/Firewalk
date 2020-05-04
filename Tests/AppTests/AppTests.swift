@@ -112,6 +112,170 @@ final class AppTests: XCTestCase {
         XCTAssertEqual(response?.status, .ok)
         XCTAssertEqual(reply?.form, ["one": "one"])
     }
+    
+    func testStatusCode() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "status/401", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .unauthorized)
+    }
+    
+    func testThatInvalidStatusCodeReturns400() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "status/blah", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .badRequest)
+    }
+    
+    func testThatBytesReturnsAppropriateLength() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        let expectedSize = 10
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "bytes/\(expectedSize)", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .ok)
+        XCTAssertEqual(response?.body.readableBytes, expectedSize)
+    }
+    
+    func testThatInvalidBytesReturns400() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "bytes/blah", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .badRequest)
+    }
+    
+    func testThatXMLReturnsXML() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "xml", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .ok)
+        XCTAssertEqual(response?.body.getString(at: 0, length: 5), "<?xml")
+    }
+    
+    func testThatIPReturnsOrigin() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        var ipReply: IPReply?
+        
+        // When
+        try app.test(.GET, "ip", into: &response, decoding: &ipReply)
+        
+        // Then
+        XCTAssertEqual(response?.status, .ok)
+    }
+    
+    func testThatBasicAuthWorkWithProperCredentials() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        let username = "user"
+        let password = "pass"
+        var headers = HTTPHeaders()
+        headers.basicAuthorization = BasicAuthorization(username: username, password: password)
+        var response: XCTHTTPResponse?
+        var reply: Reply?
+        
+        // When
+        try app.test(.GET, "basic-auth/\(username)/\(password)", headers: headers, into: &response, decoding: &reply)
+        
+        // Then
+        XCTAssertEqual(response?.status, .ok)
+        XCTAssertNotNil(reply)
+    }
+    
+    func testThatBasicAuthFailsWithImproperCredentials() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "basic-auth/user/pass", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .unauthorized)
+    }
+    
+    func testThatRedirectToWorks() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "redirect-to?url=URL", into: &response)
+        
+        // Then
+        XCTAssertEqual(response?.status, .found)
+        XCTAssertEqual(response?.headers.first(name: .location), "URL")
+    }
+    
+    func testThatStreamReturnsAppropriateCount() throws {
+        // Given
+        let app = Application(.testing)
+        defer { app.shutdown() }
+        try configure(app)
+        
+        let count = 5
+        var response: XCTHTTPResponse?
+        
+        // When
+        try app.test(.GET, "stream/\(count)", into: &response)
+        
+        // Then
+        let replies = response?.body.string.components(separatedBy: "}{")
+        XCTAssertEqual(replies?.count, count)
+        XCTAssertEqual(response?.status, .ok)
+    }
 }
 
 extension XCTApplicationTester {
