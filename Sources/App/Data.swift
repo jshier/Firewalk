@@ -46,6 +46,17 @@ func createDataRoutes(for app: Application) throws {
         return Response(body: .init(buffer: buffer))
     }
     
+    app.on(.GET, "manyBytes", ":count") { request -> Response in
+        guard let count = request.parameters["count", as: Int.self], count <= 10_000_000 else {
+            return Response(status: .badRequest)
+        }
+        
+        var buffer = request.application.allocator.buffer(capacity: count)
+        buffer.writeRepeatingByte(UInt8.random(), count: count)
+        
+        return Response(body: .init(buffer: buffer))
+    }
+    
     // Doesn't work.
 //    app.on(.GET, "chunked", ":count") { request -> Response in
 //        guard let count = request.parameters["count", as: Int.self], count > 0, count <= 100 else {

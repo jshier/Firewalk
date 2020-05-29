@@ -29,7 +29,7 @@ func createBasicAuthRoutes(for app: Application) throws {
 }
 
 struct BasicPathAuthenticator: BasicAuthenticator {
-    enum Error: Swift.Error { case invalidRequest, invalidCredentials }
+    enum Error: Swift.Error { case invalidRequest }
     
     func authenticate(basic: BasicAuthorization, for request: Request) -> EventLoopFuture<Void> {
         guard let username = request.parameters["user", as: String.self],
@@ -37,11 +37,10 @@ struct BasicPathAuthenticator: BasicAuthenticator {
                 return request.eventLoop.makeFailedFuture(Error.invalidRequest)
         }
         
-        guard basic.username == username, basic.password == password else {
-            return request.eventLoop.makeFailedFuture(Error.invalidCredentials)
+        if basic.username == username, basic.password == password {
+            request.auth.login(request)
         }
         
-        request.auth.login(request)
         return request.eventLoop.makeSucceededFuture(())
     }
 }
