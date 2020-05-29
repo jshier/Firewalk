@@ -1,4 +1,4 @@
-import App
+import FirewalkApp
 import Vapor
 
 var env = try Environment.detect()

@@ -8,15 +8,15 @@ let package = Package(
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.5.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.7.0"),
     ],
     targets: [
-        .target(name: "App", dependencies: [
+        .target(name: "FirewalkApp", dependencies: [
             .product(name: "Vapor", package: "vapor"),
         ]),
-        .target(name: "Run", dependencies: ["App"]),
-        .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
+        .target(name: "firewalk", dependencies: ["FirewalkApp"]),
+        .testTarget(name: "FirewalkTests", dependencies: [
+            .target(name: "FirewalkApp"),
             .product(name: "XCTVapor", package: "vapor"),
         ]),
     ]

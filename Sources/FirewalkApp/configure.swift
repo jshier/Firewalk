@@ -1,10 +1,14 @@
 import Vapor
 
-// configures your application
 public func configure(_ app: Application) throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    #if DEBUG
+    app.logger.logLevel = .debug
+    #else
+    app.logger.logLevel = .critical
+    #endif
+    
     app.routes.defaultMaxBodySize = 10_000_000
+
     try createXMLRoute(for: app)
     try createMethodRoutes(for: app)
     try createIPRoute(for: app)
