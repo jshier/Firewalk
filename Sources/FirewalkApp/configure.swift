@@ -2,11 +2,11 @@ import Vapor
 
 public func configure(_ app: Application) throws {
     #if DEBUG
-    app.logger.logLevel = .debug
+    app.logger.logLevel = .info
     #else
     app.logger.logLevel = .critical
     #endif
-    
+
     app.routes.defaultMaxBodySize = 10_000_000
 
     try createXMLRoute(for: app)

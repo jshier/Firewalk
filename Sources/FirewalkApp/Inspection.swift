@@ -1,6 +1,6 @@
 //
 //  Inspection.swift
-//  
+//
 //
 //  Created by Jon Shier on 5/3/20.
 //

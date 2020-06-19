@@ -1,6 +1,6 @@
 //
 //  XML.swift
-//  
+//
 //
 //  Created by Jon Shier on 5/3/20.
 //
@@ -38,10 +38,10 @@ func createXMLRoute(for app: Application) throws {
           </slide>
         </slideshow>
         """
-        
+
         var buffer = request.application.allocator.buffer(capacity: body.utf8.count)
         buffer.writeString(body)
-        
+
         let response = Response(body: .init(buffer: buffer))
         response.headers.replaceOrAdd(name: .contentType, value: "application/xml")
         return response

@@ -1,6 +1,6 @@
 //
 //  BasicAuth.swift
-//  
+//
 //
 //  Created by Jon Shier on 5/3/20.
 //
@@ -15,32 +15,32 @@ func createBasicAuthRoutes(for app: Application) throws {
             headers.add(name: .wwwAuthenticate, value: "Basic")
             return request.eventLoop.makeSucceededFuture(Response(status: .unauthorized, headers: headers))
         }
-        
+
         return try Reply(to: request).encodeResponse(for: request)
     }
-    
+
     basicAuth.on([.GET, .POST, .PUT, .PATCH, .DELETE], "hidden-basic-auth", ":user", ":passwd") { request -> EventLoopFuture<Response> in
         guard request.isAuthenticated else {
             return request.eventLoop.makeSucceededFuture(Response(status: .unauthorized))
         }
-        
+
         return try Reply(to: request).encodeResponse(for: request)
     }
 }
 
 struct BasicPathAuthenticator: BasicAuthenticator {
     enum Error: Swift.Error { case invalidRequest }
-    
+
     func authenticate(basic: BasicAuthorization, for request: Request) -> EventLoopFuture<Void> {
         guard let username = request.parameters["user", as: String.self],
             let password = request.parameters["passwd", as: String.self] else {
-                return request.eventLoop.makeFailedFuture(Error.invalidRequest)
+            return request.eventLoop.makeFailedFuture(Error.invalidRequest)
         }
-        
+
         if basic.username == username, basic.password == password {
             request.auth.login(request)
         }
-        
+
         return request.eventLoop.makeSucceededFuture(())
     }
 }

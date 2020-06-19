@@ -1,6 +1,6 @@
 //
 //  DigestAuth.swift
-//  
+//
 //
 //  Created by Jon Shier on 5/3/20.
 //
@@ -19,23 +19,23 @@ func createDigestAuthRoute(for app: Application) throws {
 //                headers.add(name: .wwwAuthenticate, value: "Digest")
 //                return request.eventLoop.makeSucceededFuture(Response(status: .unauthorized, headers: headers))
 //            }
-//    
+//
 //            return try reply(to: request).encodeResponse(for: request)
 //        }
-    
+
     app.on([.GET, .POST, .PUT, .PATCH, .DELETE], "digest-auth", ":qop", ":user", ":passwd") { request -> Response in
         guard let qop = request.parameters["qop", as: String.self],
             let username = request.parameters["user", as: String.self],
             let password = request.parameters["passwd", as: String.self] else { return Response(status: .badRequest) }
-        
+
         let response = Response(status: .permanentRedirect)
         response.headers.replaceOrAdd(name: .location, value: "https://httpbin.org/digest-auth/\(qop)/\(username)/\(password)")
-        
+
         return response
     }
 }
 
-//struct DigestAuthorization {
+// struct DigestAuthorization {
 //    static let opaque = "firewalkopaque"
 //
 //    let username: String
@@ -45,13 +45,13 @@ func createDigestAuthRoute(for app: Application) throws {
 //    let cnonce: String
 //    let nonceCount: String
 //    let oqaque: String
-//}
+// }
 //
-//protocol DigestAuthenticator: RequestAuthenticator {
+// protocol DigestAuthenticator: RequestAuthenticator {
 //    func authenticate(digest: DigestAuthorization, for request: Request) -> EventLoopFuture<Void>
-//}
+// }
 //
-//extension DigestAuthenticator {
+// extension DigestAuthenticator {
 //    func authenticate(request: Request) -> EventLoopFuture<Void> {
 //        guard let digestAuthorization = request.headers.digestAuthorization else {
 //            return request.eventLoop.makeSucceededFuture(())
@@ -59,9 +59,9 @@ func createDigestAuthRoute(for app: Application) throws {
 //
 //        return authenticate(digest: digestAuthorization, for: request)
 //    }
-//}
+// }
 
-//extension HTTPHeaders {
+// extension HTTPHeaders {
 //    var digestAuthorization: DigestAuthorization? {
 //        guard let value = first(name: .authorization) else { return nil }
 //
@@ -93,9 +93,9 @@ func createDigestAuthRoute(for app: Application) throws {
 //                                   nonceCount: nonceCount,
 //                                   oqaque: opaque)
 //    }
-//}
+// }
 //
-//struct DigestPathAuthenticator: DigestAuthenticator {
+// struct DigestPathAuthenticator: DigestAuthenticator {
 //    enum Error: Swift.Error { case invalidRequest, invalidCredentials }
 //
 //    func authenticate(digest: DigestAuthorization, for request: Request) -> EventLoopFuture<Void> {
@@ -118,4 +118,4 @@ func createDigestAuthRoute(for app: Application) throws {
 //        request.auth.login(request)
 //        return request.eventLoop.makeSucceededFuture(())
 //    }
-//}
+// }
